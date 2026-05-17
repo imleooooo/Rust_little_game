@@ -47,10 +47,6 @@ impl LevelManager {
         &self.levels[self.current_level]
     }
 
-    pub fn get_current_level_mut(&mut self) -> &mut LevelData {
-        &mut self.levels[self.current_level]
-    }
-
     pub fn next_level(&mut self) -> bool {
         if self.current_level < self.levels.len() - 1 {
             self.current_level += 1;

@@ -9,31 +9,27 @@ pub enum PigSize {
 }
 
 pub struct Pig {
-    pub pig_size: PigSize,
     pub handle: RigidBodyHandle,
     pub x: f32,
     pub y: f32,
     pub radius: f32,
     pub health: f32,
-    pub max_health: f32,
     pub destroyed: bool,
 }
 
 impl Pig {
     pub fn new(pig_size: PigSize, handle: RigidBodyHandle, x: f32, y: f32) -> Self {
-        let (radius, health, max_health) = match pig_size {
-            PigSize::Small => (18.0, 40.0, 40.0),
-            PigSize::Big => (28.0, 80.0, 80.0),
+        let (radius, health) = match pig_size {
+            PigSize::Small => (18.0, 40.0),
+            PigSize::Big => (28.0, 80.0),
         };
 
         Pig {
-            pig_size,
             handle,
             x,
             y,
             radius,
             health,
-            max_health,
             destroyed: false,
         }
     }
@@ -113,10 +109,6 @@ impl Pig {
     pub fn apply_force_from_impact(&mut self, impact_velocity: f32) {
         let damage = impact_velocity * 8.0;
         self.take_damage(damage);
-    }
-
-    pub fn is_off_screen(&self, screen_height: f32) -> bool {
-        self.y > screen_height + 100.0 || self.y < -200.0
     }
 }
 

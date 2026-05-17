@@ -19,7 +19,6 @@ pub struct Bird {
     pub y: f32,
     pub radius: f32,
     pub launched: bool,
-    pub used: bool,
     pub active: bool,
     pub ability_triggered: bool,
 }
@@ -33,7 +32,6 @@ impl Bird {
             y,
             radius: 15.0,
             launched: false,
-            used: false,
             active: true,
             ability_triggered: false,
         }
@@ -239,22 +237,4 @@ impl BirdQueue {
     pub fn get_remaining(&self) -> usize {
         self.birds.len().saturating_sub(self.current_index)
     }
-
-    pub fn reset(&mut self) {
-        self.current_index = 0;
-    }
-}
-
-pub fn draw_bird_preview(bird_type: &BirdType, d: &mut RaylibDrawHandle, x: i32, y: i32, size: f32) {
-    let color = match bird_type {
-        BirdType::Red => Color::RED,
-        BirdType::Blue => Color::BLUE,
-        BirdType::Yellow => Color::YELLOW,
-        BirdType::Black => Color::BLACK,
-        BirdType::White => Color::WHITE,
-    };
-
-    d.draw_circle(x, y, size, color);
-    d.draw_circle(x - (size * 0.3) as i32, y - (size * 0.2) as i32, size * 0.25, Color::WHITE);
-    d.draw_circle(x + (size * 0.3) as i32, y - (size * 0.2) as i32, size * 0.25, Color::WHITE);
 }

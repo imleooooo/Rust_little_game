@@ -59,13 +59,6 @@ impl PhysicsWorld {
         Vector2::new(x / PIXELS_PER_METER, (screen_height - y) / PIXELS_PER_METER)
     }
 
-    pub fn to_screen_pos(&self, pos: &Vector2<f32>, screen_height: f32) -> Vector2<f32> {
-        Vector2::new(
-            pos.x * PIXELS_PER_METER,
-            screen_height - pos.y * PIXELS_PER_METER
-        )
-    }
-
     pub fn create_ground(&mut self, screen_width: f32, screen_height: f32) -> RigidBodyHandle {
         let ground_y = self.to_physics_pos(0.0, screen_height - 50.0, screen_height).y;
         let ground_width = screen_width / PIXELS_PER_METER;
@@ -127,25 +120,6 @@ impl PhysicsWorld {
         handle
     }
 
-    pub fn create_static_box(&mut self, x: f32, y: f32, width: f32, height: f32, screen_height: f32) -> RigidBodyHandle {
-        let pos = self.to_physics_pos(x, y, screen_height);
-        let half_width = width / 2.0 / PIXELS_PER_METER;
-        let half_height = height / 2.0 / PIXELS_PER_METER;
-
-        let rigid_body = RigidBodyBuilder::fixed()
-            .translation(pos)
-            .build();
-        let handle = self.rigid_body_set.insert(rigid_body);
-
-        let collider = ColliderBuilder::cuboid(half_width, half_height)
-            .restitution(0.2)
-            .friction(1.0)
-            .build();
-        self.collider_set.insert_with_parent(collider, handle, &mut self.rigid_body_set);
-
-        handle
-    }
-
     pub fn apply_impulse(&mut self, handle: RigidBodyHandle, impulse: Vector2<f32>) {
         if let Some(body) = self.rigid_body_set.get_mut(handle) {
             body.apply_impulse(impulse, true);
@@ -154,10 +128,6 @@ impl PhysicsWorld {
 
     pub fn get_position(&self, handle: RigidBodyHandle) -> Option<Vector2<f32>> {
         self.rigid_body_set.get(handle).map(|body| body.translation().clone())
-    }
-
-    pub fn get_rotation(&self, handle: RigidBodyHandle) -> Option<f32> {
-        self.rigid_body_set.get(handle).map(|body| body.rotation().angle())
     }
 
     pub fn set_linear_velocity(&mut self, handle: RigidBodyHandle, velocity: Vector2<f32>) {
@@ -177,14 +147,6 @@ impl PhysicsWorld {
         );
     }
 
-    pub fn get_collider_position(&self, handle: RigidBodyHandle) -> Option<Vector2<f32>> {
-        self.rigid_body_set.get(handle).map(|body| body.translation().clone())
-    }
-
-    pub fn check_collision_between(&self, handle1: RigidBodyHandle, handle2: RigidBodyHandle) -> bool {
-        false
-    }
-
     pub fn is_sleeping(&self, handle: RigidBodyHandle) -> bool {
         self.rigid_body_set.get(handle).map(|body| body.is_sleeping()).unwrap_or(true)
     }
@@ -194,11 +156,4 @@ impl PhysicsWorld {
             body.wake_up(true);
         }
     }
-}
-
-pub fn physics_to_screen(pos: &Vector2<f32>, screen_height: f32) -> Vector2<f32> {
-    Vector2::new(
-        pos.x * PIXELS_PER_METER,
-        screen_height - pos.y * PIXELS_PER_METER
-    )
 }

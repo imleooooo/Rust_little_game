@@ -321,7 +321,7 @@ pub fn run() {
             }
             let bird_handle = birds[i].handle;
 
-            if let Some(bpos) = physics.get_position(bird_handle) {
+            if let Some(_bpos) = physics.get_position(bird_handle) {
                 for j in 0..blocks.len() {
                     if blocks[j].destroyed {
                         continue;
@@ -370,7 +370,7 @@ pub fn run() {
             }
             let block_handle = blocks[i].handle;
 
-            if let Some(bpos) = physics.get_position(block_handle) {
+            if let Some(_bpos) = physics.get_position(block_handle) {
                 for j in 0..pigs.len() {
                     if pigs[j].destroyed {
                         continue;
@@ -487,12 +487,12 @@ fn check_collision(physics: &PhysicsWorld, handle1: RigidBodyHandle, handle2: Ri
 
 fn check_game_state(
     birds: &[Bird],
-    blocks: &[Block],
+    _blocks: &[Block],
     pigs: &[Pig],
     all_pigs_destroyed: &mut bool,
     level_complete: &mut bool,
     game_over: &mut bool,
-    score: &mut i32,
+    _score: &mut i32,
 ) {
     *all_pigs_destroyed = pigs.iter().all(|p| p.destroyed);
 

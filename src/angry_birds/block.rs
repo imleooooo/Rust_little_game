@@ -115,10 +115,6 @@ impl Block {
         let damage = impact_velocity * 5.0;
         self.take_damage(damage);
     }
-
-    pub fn is_off_screen(&self, screen_height: f32) -> bool {
-        self.y > screen_height + 100.0 || self.y < -200.0
-    }
 }
 
 fn physics_to_screen_pos(x: f32, y: f32, screen_height: f32) -> (f32, f32) {
@@ -139,8 +135,8 @@ impl BlockFactory {
     ) -> Block {
         let handle = physics.create_dynamic_box(x, y, width, height, screen_height);
 
-        if let Some(body) = physics.rigid_body_set.get_mut(handle) {
-            let density = match block_type {
+        if let Some(_body) = physics.rigid_body_set.get_mut(handle) {
+            let _density = match block_type {
                 BlockType::Wood => 1.0,
                 BlockType::Stone => 3.0,
                 BlockType::Ice => 0.8,
