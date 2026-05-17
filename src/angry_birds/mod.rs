@@ -20,6 +20,7 @@ const SCREEN_WIDTH: i32 = 800;
 const SCREEN_HEIGHT: i32 = 600;
 const SLINGSHOT_X: f32 = 150.0;
 const SLINGSHOT_Y: f32 = 450.0;
+const AIM_RANGE: f32 = 250.0;
 
 pub struct AngryBirdsGame {
     physics: PhysicsWorld,
@@ -40,6 +41,7 @@ pub struct AngryBirdsGame {
     game_over: bool,
     trajectory_points: Vec<(f32, f32)>,
     wants_to_quit: bool,
+    mouse_in_aim_range: bool,
 }
 
 #[derive(PartialEq)]
@@ -72,6 +74,7 @@ impl AngryBirdsGame {
             game_over: false,
             trajectory_points: Vec::new(),
             wants_to_quit: false,
+            mouse_in_aim_range: false,
         };
 
         game.load_current_level();
@@ -150,12 +153,15 @@ impl AngryBirdsGame {
 
         match self.game_state {
             InternalGameState::Aiming => {
+                self.mouse_in_aim_range = false;
+
                 if mouse_down {
                     let dx = self.slingshot.base_x - mouse_x;
                     let dy = self.slingshot.base_y - mouse_y;
                     let dist = (dx * dx + dy * dy).sqrt();
 
-                    if dist < 150.0 {
+                    if dist < AIM_RANGE {
+                        self.mouse_in_aim_range = true;
                         self.slingshot.update_pull(mouse_x, mouse_y);
 
                         if let Some(bird_type) = self.bird_queue.as_ref().and_then(|q| q.get_next()) {
@@ -200,6 +206,7 @@ impl AngryBirdsGame {
                 }
 
                 if mouse_released {
+                    self.mouse_in_aim_range = false;
                     if let Some(handle) = self.current_bird_handle {
                         if let Some(velocity) = self.slingshot.release() {
                             self.physics.wake_up(handle);
@@ -523,6 +530,18 @@ impl AngryBirdsGame {
         }
 
         self.slingshot.draw(d);
+
+        let aim_color = if self.mouse_in_aim_range {
+            Color::YELLOW
+        } else {
+            Color::new(255, 255, 0, 80)
+        };
+        d.draw_circle_lines(
+            self.slingshot.base_x as i32,
+            self.slingshot.base_y as i32,
+            (AIM_RANGE as i32) as f32,
+            aim_color,
+        );
 
         for point in &self.trajectory_points {
             let screen_y = 600.0 - point.1;
