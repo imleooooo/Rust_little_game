@@ -144,7 +144,7 @@ impl Bird {
             BirdType::Yellow => {
                 self.ability_triggered = true;
                 if let Some(body) = physics.rigid_body_set.get_mut(self.handle) {
-                    let current_vel = body.linvel().clone();
+                    let current_vel = *body.linvel();
                     let boost = current_vel * 1.8;
                     body.set_linvel(boost, true);
                 }

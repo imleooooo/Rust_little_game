@@ -225,13 +225,9 @@ fn main() {
 
         match selected {
             GameSelect::SpaceDefender => {
-                drop(rl);
-                drop(thread);
                 run_space_defender();
             }
             GameSelect::AngryBirds => {
-                drop(rl);
-                drop(thread);
                 angry_birds::run();
             }
             GameSelect::None => {

@@ -269,10 +269,10 @@ pub fn run() {
                                     let screen_y = SCREEN_HEIGHT as f32 - p.y * 50.0;
                                     let screen_x = p.x * 50.0;
                                     let vel = physics.rigid_body_set.get(b.handle)
-                                        .map(|body| body.linvel().clone())
+                                        .map(|body| *body.linvel())
                                         .unwrap_or(NalgebraVector2::new(0.0, 0.0));
                                     let speed = (vel.x * vel.x + vel.y * vel.y).sqrt();
-                                    screen_y > 550.0 || screen_y < 50.0 || screen_x < 50.0 || screen_x > 750.0 || speed < 0.5
+                                    !(50.0..=550.0).contains(&screen_y) || !(50.0..=750.0).contains(&screen_x) || speed < 0.5
                                 }).unwrap_or(false)
                             });
 
@@ -288,7 +288,7 @@ pub fn run() {
                             pos.map(|p| {
                                 let screen_y = SCREEN_HEIGHT as f32 - p.y * 50.0;
                                 let screen_x = p.x * 50.0;
-                                screen_y > 580.0 || screen_y < -50.0 || screen_x < -50.0 || screen_x > 850.0
+                                !(-50.0..=580.0).contains(&screen_y) || !(-50.0..=850.0).contains(&screen_x)
                             }).unwrap_or(false)
                         });
 
@@ -315,48 +315,48 @@ pub fn run() {
             pig.update_position(&physics, SCREEN_HEIGHT as f32);
         }
 
-        for i in 0..birds.len() {
-            if !birds[i].launched || !birds[i].active {
+        for bird in birds.iter_mut() {
+            if !bird.launched || !bird.active {
                 continue;
             }
-            let bird_handle = birds[i].handle;
+            let bird_handle = bird.handle;
 
             if let Some(_bpos) = physics.get_position(bird_handle) {
-                for j in 0..blocks.len() {
-                    if blocks[j].destroyed {
+                for block in blocks.iter_mut() {
+                    if block.destroyed {
                         continue;
                     }
-                    let block_handle = blocks[j].handle;
+                    let block_handle = block.handle;
 
                     if check_collision(&physics, bird_handle, block_handle) {
                         let vel = physics.rigid_body_set.get(bird_handle)
-                            .map(|b| b.linvel().clone())
+                            .map(|b| *b.linvel())
                             .unwrap_or(NalgebraVector2::new(0.0, 0.0));
                         let impact_speed = (vel.x * vel.x + vel.y * vel.y).sqrt() * 50.0;
-                        blocks[j].apply_force_from_impact(impact_speed);
+                        block.apply_force_from_impact(impact_speed);
 
-                        if blocks[j].destroyed {
-                            physics.remove_body(blocks[j].handle);
+                        if block.destroyed {
+                            physics.remove_body(block.handle);
                             score += 10;
                         }
                     }
                 }
 
-                for j in 0..pigs.len() {
-                    if pigs[j].destroyed {
+                for pig in pigs.iter_mut() {
+                    if pig.destroyed {
                         continue;
                     }
-                    let pig_handle = pigs[j].handle;
+                    let pig_handle = pig.handle;
 
                     if check_collision(&physics, bird_handle, pig_handle) {
                         let vel = physics.rigid_body_set.get(bird_handle)
-                            .map(|b| b.linvel().clone())
+                            .map(|b| *b.linvel())
                             .unwrap_or(NalgebraVector2::new(0.0, 0.0));
                         let impact_speed = (vel.x * vel.x + vel.y * vel.y).sqrt() * 50.0;
-                        pigs[j].apply_force_from_impact(impact_speed);
+                        pig.apply_force_from_impact(impact_speed);
 
-                        if pigs[j].destroyed {
-                            physics.remove_body(pigs[j].handle);
+                        if pig.destroyed {
+                            physics.remove_body(pig.handle);
                             score += 50;
                         }
                     }
@@ -364,30 +364,30 @@ pub fn run() {
             }
         }
 
-        for i in 0..blocks.len() {
-            if blocks[i].destroyed {
+        for block in blocks.iter_mut() {
+            if block.destroyed {
                 continue;
             }
-            let block_handle = blocks[i].handle;
+            let block_handle = block.handle;
 
             if let Some(_bpos) = physics.get_position(block_handle) {
-                for j in 0..pigs.len() {
-                    if pigs[j].destroyed {
+                for pig in pigs.iter_mut() {
+                    if pig.destroyed {
                         continue;
                     }
-                    let pig_handle = pigs[j].handle;
+                    let pig_handle = pig.handle;
 
                     if check_collision(&physics, block_handle, pig_handle) {
                         let vel = physics.rigid_body_set.get(block_handle)
-                            .map(|b| b.linvel().clone())
+                            .map(|b| *b.linvel())
                             .unwrap_or(NalgebraVector2::new(0.0, 0.0));
                         let impact_speed = (vel.x * vel.x + vel.y * vel.y).sqrt() * 50.0;
 
                         if impact_speed > 3.0 {
-                            pigs[j].apply_force_from_impact(impact_speed * 0.5);
+                            pig.apply_force_from_impact(impact_speed * 0.5);
 
-                            if pigs[j].destroyed {
-                                physics.remove_body(pigs[j].handle);
+                            if pig.destroyed {
+                                physics.remove_body(pig.handle);
                                 score += 50;
                             }
                         }
@@ -574,6 +574,7 @@ fn load_level(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn restart_game(
     physics: &mut PhysicsWorld,
     level_manager: &mut LevelManager,

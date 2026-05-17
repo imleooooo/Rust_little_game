@@ -132,7 +132,7 @@ pub fn calculate_trajectory(start_x: f32, start_y: f32, velocity: NalgebraVector
 
         points.push((x, y));
 
-        if y > 600.0 || x < 0.0 || x > 800.0 {
+        if y > 600.0 || !(0.0..=800.0).contains(&x) {
             break;
         }
     }

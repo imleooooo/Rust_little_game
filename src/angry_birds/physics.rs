@@ -127,7 +127,7 @@ impl PhysicsWorld {
     }
 
     pub fn get_position(&self, handle: RigidBodyHandle) -> Option<Vector2<f32>> {
-        self.rigid_body_set.get(handle).map(|body| body.translation().clone())
+        self.rigid_body_set.get(handle).map(|body| *body.translation())
     }
 
     pub fn set_linear_velocity(&mut self, handle: RigidBodyHandle, velocity: Vector2<f32>) {
